@@ -40,8 +40,6 @@ lib = do
     let p1 = Point {x = 1, y = 1}
     let p2 = Point {x = 2, y = 2}
 
-    [0..100].map(\i -> Point {x=i, y=i})
-
     let slope = calculateSlope $ Line (p1, p2)
     let intercept = calculateIntercept p1 slope
 
