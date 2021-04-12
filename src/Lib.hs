@@ -1,6 +1,4 @@
-module Lib
-    ( lib
-    ) where
+module Lib ( lib ) where
 
 data Point = Point {
     x :: Double,
@@ -13,7 +11,7 @@ data Slope = Slope Double
 data Intercept = Intercept Double
 
 data StraightLine = StraightLine { 
-    slope :: Slope,
+    slope     :: Slope,
     intercept :: Intercept
 }
 
@@ -50,13 +48,20 @@ mean :: [Double] -> Double
 mean xs = sum xs / lengthAsDouble xs
 
 getX :: [Point] -> [Double]
-getX xs = map (\p -> x p) xs
+getX = map (\p -> x p)
 
 getY :: [Point] -> [Double]
-getY xs = map (\p -> y p) xs
+getY = map (\p -> y p)
+
+delta :: [Double] -> Double -> Double
+delta xs x = x - mean xs
 
 estimateSlope :: [Double] -> [Double] -> Double
-estimateSlope xs ys = (sum $ zipWith (\x y -> (x - (mean xs)) * (y - (mean ys))) xs ys) / ((sum $ map (\x -> x - (mean xs)) xs) ** 2)
+estimateSlope xs ys = numerator / denominator
+  where
+    denominator = sum (map (delta xs) xs) ** 2
+    numerator = sum $ zipWith mulDeltas xs ys
+    mulDeltas x y = (delta xs x) * (delta ys y)
 
 estimateIntercept :: Double -> Double -> Slope -> Double
 estimateIntercept yMean xMean (Slope m)  = yMean - m * xMean
@@ -73,7 +78,7 @@ lib = do
         intercept=estimatedIntercept
     }
 
-    putStrLn . show $ estimatedLine
+    print estimatedLine
 
     ---------------
     -- ONLY USEFUL FOR A STRAIGHT LINE
@@ -87,5 +92,5 @@ lib = do
         intercept=intercept
     }
 
-    putStrLn . show $ straightLine
-    putStrLn . show $ computeY 4 slope intercept
+    print straightLine
+    print $ computeY 4 slope intercept
