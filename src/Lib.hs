@@ -1,6 +1,4 @@
-module Lib
-    ( lib
-    ) where
+module Lib ( lib ) where
 
 data Point = Point {
     x :: Double,
@@ -13,8 +11,8 @@ data Slope = Slope Double
 data Intercept = Intercept Double
 
 data StraightLine = StraightLine { 
-    slope :: Slope,
-    intercept :: Intercept
+    slope       :: Slope,
+    intercept   :: Intercept
 }
 
 instance Show Slope where
@@ -50,23 +48,28 @@ mean :: [Double] -> Double
 mean xs = sum xs / lengthAsDouble xs
 
 getX :: [Point] -> [Double]
-getX xs = map (\p -> x p) xs
+getX = map (\p -> x p)
 
 getY :: [Point] -> [Double]
-getY xs = map (\p -> y p) xs
+getY = map (\p -> y p)
 
-estimateSlope :: [Double] -> [Double] -> Double
-estimateSlope xs ys = (sum $ zipWith (\x y -> (x - (mean xs)) * (y - (mean ys))) xs ys) / ((sum $ map (\x -> x - (mean xs)) xs) ** 2)
+delta :: [Double] -> Double -> Double
+delta xs x = x - mean xs
 
-estimateIntercept :: Double -> Double -> Slope -> Double
-estimateIntercept yMean xMean (Slope m)  = yMean - m * xMean
+estimateSlope :: [Double] -> [Double] -> Slope
+estimateSlope xs ys = Slope ((sum $ zipWith (\x y -> (delta xs x) * (delta ys y)) xs ys) / ((sum $ map (\x -> (delta xs x)) xs) ** 2))
+
+estimateIntercept :: Double -> Double -> Slope -> Intercept
+estimateIntercept yMean xMean (Slope m)  = Intercept (yMean - m * xMean)
 
 lib :: IO ()
 lib = do 
     let points = [ (Point {x = 1, y = 1}), (Point {x = 2, y = 2}), (Point {x = 3, y = 3}), (Point {x = 4, y = 4}), (Point {x = 5, y = 5}), (Point {x = 6, y = 6}), (Point {x = 7, y = 7}), (Point {x = 8, y = 8}), (Point {x = 9, y = 9}), (Point {x = 10, y = 10})]
+    let xPoints = getX points
+    let yPoints = getY points
 
-    let estimatedSlope = Slope $ estimateSlope (getX points) (getY points)
-    let estimatedIntercept = Intercept $ estimateIntercept (mean $ getY points) (mean $ getX points) estimatedSlope
+    let estimatedSlope = estimateSlope xPoints yPoints
+    let estimatedIntercept = estimateIntercept (mean yPoints) (mean xPoints) estimatedSlope
 
     let estimatedLine = StraightLine {
         slope=estimatedSlope,
