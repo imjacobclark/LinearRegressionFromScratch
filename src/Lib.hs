@@ -1,5 +1,9 @@
 module Lib ( lib ) where
 
+---------------
+-- Domain
+---------------
+
 data Point = Point {
     x :: Double,
     y :: Double
@@ -24,6 +28,10 @@ instance Show Intercept where
 instance Show StraightLine where
     show (StraightLine m b) = formatEquation m b
 
+---------------
+-- Equation of a straight line
+---------------
+
 formatEquation :: Slope -> Intercept -> String
 formatEquation (Slope m) (Intercept b) = do
     if (isInfinite m) == True && (isInfinite b) == True
@@ -44,6 +52,10 @@ computeY x (Slope m) (Intercept b) = m*x+b
 lengthAsDouble :: [Double] -> Double
 lengthAsDouble xs = fromIntegral $ length xs
 
+---------------
+-- Linear Regression
+---------------
+
 mean :: [Double] -> Double
 mean xs = sum xs / lengthAsDouble xs
 
@@ -57,7 +69,9 @@ delta :: [Double] -> Double -> Double
 delta xs x = x - mean xs
 
 estimateSlope :: [Double] -> [Double] -> Slope
-estimateSlope xs ys = Slope ((sum $ zipWith (\x y -> (delta xs x) * (delta ys y)) xs ys) / ((sum $ map (\x -> (delta xs x)) xs) ** 2))
+estimateSlope xs ys = Slope (numerator / denominator) where
+    numerator = sum $ zipWith (\x y -> (delta xs x) * (delta ys y)) xs ys
+    denominator = (sum $ map (delta xs) xs) ** 2
 
 estimateIntercept :: Double -> Double -> Slope -> Intercept
 estimateIntercept yMean xMean (Slope m)  = Intercept (yMean - m * xMean)
@@ -76,7 +90,7 @@ lib = do
         intercept=estimatedIntercept
     }
 
-    putStrLn . show $ estimatedLine
+    print $ estimatedLine
 
     ---------------
     -- ONLY USEFUL FOR A STRAIGHT LINE
@@ -90,5 +104,5 @@ lib = do
         intercept=intercept
     }
 
-    putStrLn . show $ straightLine
-    putStrLn . show $ computeY 4 slope intercept
+    print $ straightLine
+    print $ computeY 4 slope intercept
